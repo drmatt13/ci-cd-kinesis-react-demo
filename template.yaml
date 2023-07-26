@@ -1,0 +1,96 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: An AWS Serverless Application.
+
+Globals:
+  Function:
+    Timeout: 3
+
+Outputs:
+  ApiGatewayUrl:
+    Description: "URL of the Prod stage for MyApi"
+    Value: !Sub "https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
+  S3Bucket:
+    Description: "Name of the S3 bucket for the React app"
+    Value: "your-s3-bucket-name"
+
+Resources:
+  MyApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+
+  SendDataFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: sendData/
+      Handler: app.lambdaHandler
+      Runtime: nodejs18.x
+      Architectures:
+        - x86_64
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AmazonKinesisFullAccess
+      Environment:
+        Variables:
+          STREAM_NAME: !Ref MyKinesisStream
+          DYNAMO_DB_TABLE: !Ref DynamoDBTable
+      Events:
+        SendData:
+          Type: Api
+          Properties:
+            Path: /send
+            Method: post
+            RestApiId: !Ref MyApi
+
+  PollDataFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: pollData/
+      Handler: app.lambdaHandler
+      Runtime: nodejs18.x
+      Architectures:
+        - x86_64
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AmazonKinesisFullAccess
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DynamoDBTable
+      Environment:
+        Variables:
+          STREAM_NAME: !Ref MyKinesisStream
+          DYNAMO_DB_TABLE: !Ref DynamoDBTable
+      Events:
+        PollData:
+          Type: Api
+          Properties:
+            Path: /poll
+            Method: get
+            RestApiId: !Ref MyApi
+
+  MyKinesisStream:
+    Type: AWS::Kinesis::Stream
+    Properties:
+      ShardCount: 1
+      RetentionPeriodHours: 24
+
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: shardId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: shardId
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  # S3Bucket:
+  #   Type: AWS::S3::Bucket
+  #   Properties:
+  #     AccessControl: PublicRead
+  #     WebsiteConfiguration:
+  #       IndexDocument: index.html
+  #       ErrorDocument: error.html

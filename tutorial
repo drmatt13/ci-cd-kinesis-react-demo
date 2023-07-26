@@ -1,0 +1,34 @@
+# Create a CodeCommit repository and push this project to it 
+
+# Create an s3 bucket for both the sam template and the react app
+aws s3api create-bucket --bucket <your-bucket-name> --region <your-region>
+
+# Enable public access on the bucket
+# Attach this policy to the s3 bucket
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PublicReadGetObject",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::<your-bucket-name>/*"
+        }
+    ]
+}
+
+# Create a new IAM role and add AdministratorAccess + AWSCloudTrail_FullAccess
+# Alternatively a fine grained permissions IAM role can be created instead to archieve least privilage
+
+# Create a new CodeBuild project
+# Attach your custom IAM role
+# Create 2 custom environment variables:
+# REACT_APP_BUCKET_NAME: <your-bucket-name>
+# STACK_NAME: <your-stack-name>
+
+# Create a new CodePipeline
+# Configure the CodeCommit repository as the Source 
+# Configure the CodeBuild project as a build stage
+
+# Deploy
