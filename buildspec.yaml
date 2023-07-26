@@ -19,10 +19,10 @@ phases:
   post_build:
     commands:
       - sam deploy --stack-name $STACK_NAME --capabilities CAPABILITY_IAM --no-confirm-changeset --no-fail-on-empty-changeset
-      # - export APIGATEWAY_URL=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='ApiGatewayUrl'].OutputValue" --output text)
-      # - cd react-app
-      # - echo "REACT_APP_API_GATEWAY_ENDPOINT=$APIGATEWAY_URL" > .env
-      # - npm install
-      # - npm run build
-      # - aws s3 sync build/ s3://$REACT_APP_BUCKET_NAME/
+      - export APIGATEWAY_URL=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='ApiGatewayUrl'].OutputValue" --output text)
+      - cd react-app
+      - echo "REACT_APP_API_GATEWAY_ENDPOINT=$APIGATEWAY_URL" > .env
+      - npm install
+      - npm run build
+      - aws s3 sync build/ s3://$REACT_APP_BUCKET_NAME/
 
