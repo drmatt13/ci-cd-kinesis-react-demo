@@ -19,6 +19,10 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: prod
+    Cors:
+      AllowOrigin: "'*'"
+      AllowMethods: "'GET, POST, PUT'"
+      AllowHeaders: "'Content-Type, Authorization'"
 
   SendDataFunction:
     Type: AWS::Serverless::Function
@@ -41,6 +45,7 @@ Resources:
           Properties:
             Path: /send
             Method: post
+            Cors: "'*'"
             RestApiId: !Ref MyApi
 
   PollDataFunction:
@@ -66,6 +71,7 @@ Resources:
           Properties:
             Path: /poll
             Method: get
+            Cors: "'*'"
             RestApiId: !Ref MyApi
 
   MyKinesisStream:
