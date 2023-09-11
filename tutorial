@@ -4,6 +4,7 @@
 aws s3api create-bucket --bucket <your-bucket-name> --region <your-region>
 
 # Enable public access on the bucket
+# Enable Static website hosting on the bucket
 # Attach this policy to the s3 bucket
 {
     "Version": "2012-10-17",
@@ -23,9 +24,9 @@ aws s3api create-bucket --bucket <your-bucket-name> --region <your-region>
 
 # Create a new CodeBuild project
 # Attach your custom IAM role
-# Create 2 custom environment variables:
+# Create these 2 custom environment variables in codebuild:
 # REACT_APP_BUCKET_NAME: <your-bucket-name>
-# STACK_NAME: <your-stack-name>
+# STACK_NAME: <your-stack-name defined in samconfig.toml>
 
 # Create a new CodePipeline
 # Configure the CodeCommit repository as the Source 
